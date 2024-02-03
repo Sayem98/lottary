@@ -17,7 +17,7 @@ function SwapCard() {
             )}
             onClick={() => setCurrentTab("lottary")}
           >
-            Lottary
+            Lottery
           </span>
           <span
             className={cn(

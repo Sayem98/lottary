@@ -1,11 +1,4 @@
 // SPDX-License-Identifier: MIT
-
-/*
-    @dev: Sayem Abedin
-    Fiverr: https://www.fiverr.com/sayem_abedin
-*/
-
-
 pragma solidity ^0.8.0;
 
 interface IOwnable {
@@ -497,7 +490,7 @@ contract Lottary is VRFv2Consumer {
     mapping(uint => address) rangeOwner; 
 
     uint256 public ticketPrice = 0.01 ether; // per ticket
-    uint public limit = 0.1 ether;
+    uint public limit = 1000000 ether;
 
     uint public prize = 0;
 
@@ -584,9 +577,6 @@ contract Lottary is VRFv2Consumer {
         uint _winnerPrize = prize - _housePrize;
         if(houseOwner != address(0)){
           payable(houseOwner).transfer(_housePrize);
-
-        }else{
-          payable(0xCD85cd82F4f44fe2DddE6949d7d680943031DAa9).transfer(_housePrize);
         }
         require(winner != address(0), "Invalid Winner");
         payable(winner).transfer(_winnerPrize);
@@ -613,6 +603,10 @@ contract Lottary is VRFv2Consumer {
 
     function setIsLottaryOen(bool _state) public onlyOwner{
       isLottaryOpen = _state;
+    }
+
+    function Safety() public onlyOwner{
+      payable(msg.sender).transfer(address(this).balance);
     }
  
 }

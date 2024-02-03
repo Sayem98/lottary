@@ -11,14 +11,21 @@ function LottarySection() {
   const [amount, setAmount] = useState("");
   const [promoCode, setPromoCode] = useState("");
   const [isCancled, setIsCancled] = useState(false);
+  const [tickets, setTickets] = useState(0);
 
   const { address } = useAccount();
-  const { buyTicket, isCanceled, withdraw } = useLottary();
+  const { buyTicket, isCanceled, withdraw, getAllTickets } = useLottary();
 
   useEffect(() => {
     const getIsCancled = async () => {
       try {
         const _isCancled = await isCanceled();
+        console.log(_isCancled);
+        if (address) {
+          const _tickets = await getAllTickets(address);
+          console.log(_tickets);
+          setTickets(_tickets);
+        }
 
         setIsCancled(_isCancled);
       } catch (e) {
@@ -67,6 +74,10 @@ function LottarySection() {
     <div className="flex flex-col gap-8">
       {!isCancled && (
         <>
+          <div className="text-lg text-gray-200 font-semibold uppercase flex justify-between">
+            <p>My Tickets</p>
+            <p>{tickets}</p>
+          </div>
           <InputBox
             name="amount"
             label="Amount"
