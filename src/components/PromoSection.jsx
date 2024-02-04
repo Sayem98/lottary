@@ -43,7 +43,7 @@ function PromoSection() {
 
   return (
     <div>
-      <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-8 w-full h-full">
         <InputBox
           name="promoCode"
           label="Promo Code"
@@ -75,6 +75,8 @@ function PromoSection() {
         </button>
       </div>
       {/* separator */}
+      <div className="border-b-4 border-[#374151] my-8"></div>
+      {/* search promo code */}
 
       <div className="flex flex-col gap-8 mt-6 ">
         <InputBox
