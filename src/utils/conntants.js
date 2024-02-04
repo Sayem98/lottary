@@ -1,5 +1,7 @@
 export const rpc = "https://go.getblock.io/7a3650916ab346ae826bcb9352dba1ed";
 export const LOTTARY_ADDRESS = "0x99e1D94E9b9D433FEb39edaDe9278A085f206b59";
+// export const LOTTARY_ADDRESS = "0x29eE1120cC31ce7F7C4d442134782dbCAaD612D2"; //sepolia test net
+
 export const LOTTARY_ABI = [
   {
     inputs: [

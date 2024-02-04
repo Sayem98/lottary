@@ -24,6 +24,12 @@ function PromoSection() {
     }
   }, [wallet]);
 
+  const getPromoCode = async () => {
+    const _promo = await myRegisteredPromo(address);
+    console.log(_promo);
+    setRegisteredPromos(_promo);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log(address, promoCode);
@@ -100,7 +106,7 @@ function PromoSection() {
 
           <button
             className="uppercase text-lg bg-[#4f46e5] hover:bg-[#5b54e8] px-6 py-2 rounded-lg  shadow-xl"
-            onClick={() => setRegisteredPromos(myRegisteredPromo(address))}
+            onClick={getPromoCode}
           >
             {isLoading ? <Spinner /> : "Get"}
           </button>

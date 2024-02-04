@@ -118,10 +118,12 @@ function useLottary() {
       return [];
     } else {
       // store the registered promo-codes in an array
+      console.log(filteredEvents);
       const registeredPromoCodes = [];
       filteredEvents.forEach((event) => {
         registeredPromoCodes.push(event.returnValues.code);
       });
+      console.log(registeredPromoCodes);
       return registeredPromoCodes;
     }
     // console.log(events);
