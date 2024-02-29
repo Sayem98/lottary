@@ -1,6 +1,6 @@
 function InputBox({ name, label, value, onChange, ...rest }) {
   return (
-    <div className="space-y-2">
+    <div className="space-y-1">
       <label
         htmlFor={name}
         className="text-lg text-gray-200 font-semibold uppercase"
@@ -12,7 +12,7 @@ function InputBox({ name, label, value, onChange, ...rest }) {
           id={name}
           value={value}
           onChange={onChange}
-          className="bg-transparent focus:outline-none w-full md:text-xl font-extrabold text-gray-200 self-start py-4 px-3 md:px-5 shadow-xl"
+          className="bg-transparent focus:outline-none w-full md:text-xl font-extrabold text-gray-200 self-start py-3 px-3 md:px-5 shadow-xl"
           {...rest}
         />
       </div>

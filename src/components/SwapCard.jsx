@@ -8,12 +8,12 @@ function SwapCard() {
 
   return (
     <div className="m-2 md:m-4 flex justify-center py-10">
-      <div className="flex flex-col gap-6 bg-[#18212f] text-white px-4 md:px-7 py-7 shadow-2xl rounded-3xl w-full min-w-[200px] max-w-[580px]">
+      <div className="flex flex-col gap-6 bg-[#27262c] text-white px-4 md:px-7 py-7 shadow-2xl rounded-3xl w-full min-w-[200px] max-w-[580px]">
         <div className="flex items-center justify-center gap-1 lg:gap-4 uppercase text-white text-sm lg:text-xl font-extrabold relative">
           <span
             className={cn(
               "border-b-8 border-transparent px-4 pb-2 z-10 cursor-pointer",
-              currentTab === "lottary" && "border-[#111827]"
+              currentTab === "lottary" && "border-[#27262c]"
             )}
             onClick={() => setCurrentTab("lottary")}
           >
@@ -22,7 +22,7 @@ function SwapCard() {
           <span
             className={cn(
               "border-b-8 border-transparent px-4 pb-2 z-10 cursor-pointer",
-              currentTab === "promo" && "border-[#111827]"
+              currentTab === "promo" && "border-[#27262c]"
             )}
             onClick={() => setCurrentTab("promo")}
           >

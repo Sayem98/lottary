@@ -3,8 +3,15 @@ import { ConnectKitButton } from "connectkit";
 function Header() {
   return (
     <header className="w-full">
-      <div className="flex items-center justify-between bg-[#18212f] px-6 md:px-12 py-4 shadow-md">
-        <h4 className="text-lg font-bold uppercase">Lottery</h4>
+      <div className="flex items-center justify-between bg-[#27262c] px-6 md:px-12 py-4 shadow-md">
+        <div className="flex gap-5 justify-center items-center">
+          <img
+            src="./images/tokens/woke.jpg"
+            alt="USDT"
+            className="object-contain w-14 h-14 rounded-full"
+          />
+          <h4 className="text-lg font-bold uppercase">Lottery</h4>
+        </div>
         <div className="flex items-center gap-4">
           <ConnectKitButton.Custom>
             {({ isConnected, show, address }) => {
