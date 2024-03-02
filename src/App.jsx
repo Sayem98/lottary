@@ -4,7 +4,7 @@ import { bsc, sepolia } from "wagmi/chains";
 import { Toaster } from "react-hot-toast";
 import Homepage from "./pages/Homepage";
 
-const chains = [mainnet];
+const chains = [mainnet, sepolia];
 const config = createConfig(
   getDefaultConfig({
     alchemyId: "EbWpcrEoNB5gzeDJi_clFzLbpbgTtuRt",

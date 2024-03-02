@@ -18,33 +18,15 @@ function PromoSection() {
 
   const { registerPromo, searchPromoter, myRegisteredPromo } = useLottary();
 
-  // useEffect(() => {
-  //   if (wallet) {
-  //     setAddress(wallet);
-  //   }
-  // }, [wallet]);
+  useEffect(() => {
+    if (wallet) {
+      setAddress(wallet);
+    }
+  }, [wallet]);
 
-  const getPromoCode = async () => {
-    // const _promo = await myRegisteredPromo(address);
-    // console.log(_promo);
-    // setRegisteredPromos(_promo);
-  };
+  const getPromoCode = async () => {};
 
-  const handleSubmit = async (e) => {
-    // e.preventDefault();
-    // console.log(address, promoCode);
-    // if (!wallet) return toast.error("Please connect your wallet");
-    // if (!promoCode) return toast.error("Please enter the promo code");
-    // setIsLoading(true);
-    // try {
-    //   await registerPromo(address, promoCode);
-    // } catch (e) {
-    //   console.log(e);
-    //   toast.error("Error registering promo code");
-    // } finally {
-    //   setIsLoading(false);
-    // }
-  };
+  const handleSubmit = async (e) => {};
 
   return (
     <div>

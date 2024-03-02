@@ -19,7 +19,7 @@ function SwapCard() {
           >
             Lottery
           </span>
-          <span
+          {/* <span
             className={cn(
               "border-b-8 border-transparent px-4 pb-2 z-10 cursor-pointer",
               currentTab === "promo" && "border-[#27262c]"
@@ -27,13 +27,13 @@ function SwapCard() {
             onClick={() => setCurrentTab("promo")}
           >
             Promo
-          </span>
+          </span> */}
           <span className="bg-[#374151] w-full absolute left-0 top-[30px] md:top-[37px] h-1 z-0"></span>
         </div>
 
         <div className="md:px-4 py-4">
           {currentTab === "lottary" && <LottarySection />}
-          {currentTab === "promo" && <PromoSection />}
+          {/* {currentTab === "promo" && <PromoSection />} */}
         </div>
       </div>
     </div>

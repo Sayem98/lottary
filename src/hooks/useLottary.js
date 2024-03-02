@@ -1,142 +1,139 @@
 import Web3 from "web3";
-import { LOTTARY_ABI, LOTTARY_ADDRESS, rpc } from "../utils/conntants";
+import {
+  LOTTERY_CONTRACT_ADDRESS,
+  WOKE_CONTRACT_ADDRESS,
+  GONE_CONTRACT_ADDRESS,
+  LOTTERY_CONTRACT_ABI,
+  TOKEN_CONTRACT_ABI,
+} from "../contract/contract";
 import toast from "react-hot-toast";
 
 function useLottary() {
-  const geWeb3 = (type = "read") => {
+  const getWeb3 = async () => {
     if (!window.ethereum) {
-      toast.error("Please install Metamask");
+      toast.error("Please install MetaMask!");
+      return;
     }
-    if (type === "read") {
-      return new Web3(window.ethereum);
-    } else {
-      if (window.ethereum) {
-        return new Web3(window.ethereum);
-      } else {
-        toast.error("Please install Metamask");
-      }
-    }
+    const web3 = new Web3(Web3.givenProvider || "http://localhost:8545");
+    return web3;
   };
 
-  const getLottary = async (web3) => {
-    const lottary = new web3.eth.Contract(LOTTARY_ABI, LOTTARY_ADDRESS);
-    return lottary;
+  const getContract = async (web3, contractAddress, contractAbi) => {
+    const contract = new web3.eth.Contract(contractAbi, contractAddress);
+    return contract;
   };
 
-  const registerPromo = async (address, code) => {
-    const web3 = geWeb3("write");
-    const lottary = await getLottary(web3);
+  const buyTicket = async (paymentType, amount) => {
+    const web3 = await getWeb3();
 
-    // registerPromo
-    try {
-      await lottary.methods.registerPromoter(code).send({ from: address });
-    } catch (err) {
-      console.log(err);
-    }
-  };
+    const accounts = await web3.eth.getAccounts();
+    const account = accounts[0];
 
-  const buyTicket = async (address, amount, code) => {
-    const web3 = geWeb3("write");
-    const lottary = await getLottary(web3);
-
-    // buyTicket
-    try {
-      await lottary.methods
-        .buyTicket(code)
-        .send({ from: address, value: amount });
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const isCanceled = async () => {
-    const web3 = geWeb3("read");
-    const lottary = await getLottary(web3);
-    const isCanceled = await lottary.methods.isCanceled().call();
-    return isCanceled;
-  };
-
-  const withdraw = async (address) => {
-    const web3 = geWeb3("write");
-    const lottary = await getLottary(web3);
-
-    // withdraw
-    try {
-      await lottary.methods.withdraw().send({ from: address });
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const getAllTickets = async (address) => {
-    if (!address) return 0;
-
-    const web3 = geWeb3("read");
-    const lottary = await getLottary(web3);
-    const allTickets = await lottary.methods.tickets(address).call();
-    return allTickets;
-  };
-
-  const searchPromoter = async (code) => {
-    const web3 = geWeb3("read");
-    const lottary = await getLottary(web3);
-    // Get all the previous events to search for the code
-    const events = await lottary.getPastEvents("PromoterRegistered", {
-      fromBlock: 0,
-      toBlock: "latest",
-    });
-
-    // filter the events to find the code
-    const filteredEvents = events.filter(
-      (event) => event.returnValues.code === code
+    const contract = await getContract(
+      web3,
+      LOTTERY_CONTRACT_ADDRESS,
+      LOTTERY_CONTRACT_ABI
     );
-    console.log(filteredEvents);
-    if (filteredEvents.length === 0) {
-      toast.success("Promo-code not registered");
-    } else {
-      toast.error("Promo-code registered");
+    console.log(contract);
+    const latest_lottery_id = await contract.methods.numberOfLotteries().call();
+    console.log(latest_lottery_id);
+
+    const lottery = await contract.methods
+      .lotteries(Number(latest_lottery_id) - 1)
+      .call();
+
+    if (!account) {
+      toast.error("Please connect your wallet!");
+      return;
     }
-    // console.log(events);
-  };
+    if (paymentType === "Polygon") {
+      console.log("Polygon");
 
-  const myRegisteredPromo = async (address) => {
-    if (!address) return [];
+      console.log(
+        Web3.utils.fromWei(lottery.maticPrice.toString(), "ether").toString()
+      );
 
-    const web3 = geWeb3("read");
-    const lottary = await getLottary(web3);
-    // Get all the previous events to search for the code
-    const events = await lottary.getPastEvents("PromoterRegistered", {
-      fromBlock: 0,
-      toBlock: "latest",
-    });
-    // filter the events to find the code
-    const filteredEvents = events.filter(
-      (event) => event.returnValues.promoter === address
-    );
-    if (filteredEvents.length === 0) {
-      toast.error("No promo-code registered");
-      return [];
-    } else {
-      // store the registered promo-codes in an array
-      console.log(filteredEvents);
-      const registeredPromoCodes = [];
-      filteredEvents.forEach((event) => {
-        registeredPromoCodes.push(event.returnValues.code);
+      const _pay = Web3.utils.toWei(
+        (
+          amount *
+          Number(Web3.utils.fromWei(lottery.maticPrice.toString(), "ether"))
+        ).toString(),
+        "ether"
+      );
+
+      console.log(_pay);
+
+      await contract.methods.buyTickets(0, amount).send({
+        from: account,
+        value: _pay,
       });
-      console.log(registeredPromoCodes);
-      return registeredPromoCodes;
+    } else if (paymentType === "woke") {
+      let approve_amount =
+        amount * Web3.utils.fromWei(lottery.wokePrice.toString(), "ether");
+      approve_amount = Web3.utils.toWei(approve_amount.toString(), "ether");
+
+      const wokeContract = await getContract(
+        web3,
+        WOKE_CONTRACT_ADDRESS,
+        TOKEN_CONTRACT_ABI
+      );
+
+      try {
+        // approve
+        await wokeContract.methods
+          .approve(LOTTERY_CONTRACT_ADDRESS, approve_amount)
+          .send({ from: account });
+
+        await contract.methods
+          .buyTickets(1, amount)
+          .send({ from: account, value: amount });
+      } catch (e) {
+        toast.error("Transaction failed");
+      }
+    } else if (paymentType === "gone") {
+      let approve_amount =
+        amount * Web3.utils.fromWei(lottery.gonePrice.toString(), "ether");
+      approve_amount = Web3.utils.toWei(approve_amount.toString(), "ether");
+
+      const goneContract = await getContract(
+        web3,
+        GONE_CONTRACT_ADDRESS,
+        TOKEN_CONTRACT_ABI
+      );
+
+      try {
+        // approve
+        await goneContract.methods
+          .approve(LOTTERY_CONTRACT_ADDRESS, approve_amount)
+          .send({ from: account });
+
+        await contract.methods
+          .buyTickets(2, amount)
+          .send({ from: account, value: amount });
+      } catch (e) {
+        toast.error("Transaction failed");
+      }
+    } else {
+      toast.error("Invalid payment type");
     }
-    // console.log(events);
   };
 
+  const myTickets = async () => {
+    const web3 = await getWeb3();
+    const accounts = await web3.eth.getAccounts();
+    const account = accounts[0];
+
+    const contract = await getContract(
+      web3,
+      LOTTERY_CONTRACT_ADDRESS,
+      LOTTERY_CONTRACT_ABI
+    );
+
+    const tickets = await contract.methods.myTickets(account).call();
+    return tickets;
+  };
   return {
-    registerPromo,
     buyTicket,
-    isCanceled,
-    withdraw,
-    getAllTickets,
-    searchPromoter,
-    myRegisteredPromo,
   };
 }
 
