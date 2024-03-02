@@ -132,8 +132,23 @@ function useLottary() {
     const tickets = await contract.methods.myTickets(account).call();
     return tickets;
   };
+  const getData = async () => {
+    const web3 = await getWeb3();
+    const contract = await getContract(
+      web3,
+      LOTTERY_CONTRACT_ADDRESS,
+      LOTTERY_CONTRACT_ABI
+    );
+
+    const latest_lottery_id = await contract.methods.numberOfLotteries().call();
+    const lottery = await contract.methods
+      .lotteries(Number(latest_lottery_id) - 1)
+      .call();
+    return lottery;
+  };
   return {
     buyTicket,
+    getData,
   };
 }
 

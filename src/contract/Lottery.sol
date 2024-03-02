@@ -221,13 +221,15 @@ contract Lotteries is Ownable {
 
     // ticket range for each user in a lottery  --> start and end of each buy
     struct TicketRange {
+        address owner;
         uint start;
         uint end;
     }
 
 
     struct Lottery{
-        mapping(address => TicketRange[]) tickets; // tickets of each user in a lottery --> user address and ticket range
+        mapping(uint => TicketRange) tickets; // tickets of each user in a lottery --> user address and ticket range
+        uint totalIds;
         uint totalTickets; // total tickets in a lottery
         mapping(address=>uint) totalTicketsPerUser; // total tickets of each user in a lottery
         uint totalPlayers; // total players in a lottery
@@ -240,6 +242,7 @@ contract Lotteries is Ownable {
         uint gonePrice; // price of a ticket in gone
         bool isAcceptingWoke; // is accepting woke tokens
         bool isAcceptingGone; // is accepting gone tokens
+ 
         
     }
 
@@ -315,25 +318,28 @@ contract Lotteries is Ownable {
         }
 
         //update the tickets
-        lotteries[numberOfLotteries-1].tickets[msg.sender].push(TicketRange(lotteries[numberOfLotteries-1].totalTickets, lotteries[numberOfLotteries-1].totalTickets + _amount - 1));
+        lotteries[numberOfLotteries-1].tickets[lotteries[numberOfLotteries-1].totalIds].start = lotteries[numberOfLotteries-1].totalTickets;
+        lotteries[numberOfLotteries-1].tickets[lotteries[numberOfLotteries-1].totalIds].end = lotteries[numberOfLotteries-1].totalTickets + _amount - 1;
+        lotteries[numberOfLotteries-1].tickets[lotteries[numberOfLotteries-1].totalIds].owner = msg.sender;
         lotteries[numberOfLotteries-1].totalTickets += _amount;
         lotteries[numberOfLotteries-1].totalTicketsPerUser[msg.sender] += _amount;
+        lotteries[numberOfLotteries-1].totalIds ++;
 
         // check if the user is already in the players list
-        if(lotteries[numberOfLotteries-1].totalTicketsPerUser[msg.sender]==0){
+        
             lotteries[numberOfLotteries-1].totalPlayers++;
-        }
+
+        
 
     }
 
     function getWinner(uint _ticketNumber) private view returns(address){
         address winner;
-        for(uint i=0; i<lotteries[numberOfLotteries-1].totalPlayers; i++){
-            if(_ticketNumber >= lotteries[numberOfLotteries-1].tickets[lotteries[numberOfLotteries-1].winners[i]][0].start && _ticketNumber <= lotteries[numberOfLotteries-1].tickets[lotteries[numberOfLotteries-1].winners[i]][0].end){
-                winner = lotteries[numberOfLotteries-1].winners[i];
-                break;
+         for(uint i = 0; i<lotteries[numberOfLotteries-1].totalIds; i++){
+            if(_ticketNumber>=lotteries[numberOfLotteries-1].tickets[i].start && _ticketNumber<=lotteries[numberOfLotteries-1].tickets[i].end){
+                winner = lotteries[numberOfLotteries-1].tickets[i].owner;
             }
-        }
+         }
         return winner;
     }
     // draw the latest lottery
