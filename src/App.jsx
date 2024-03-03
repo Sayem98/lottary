@@ -1,10 +1,10 @@
 import { WagmiConfig, createConfig, mainnet } from "wagmi";
 import { ConnectKitProvider, getDefaultConfig } from "connectkit";
-import { bsc, sepolia } from "wagmi/chains";
+import { bsc, polygon, sepolia } from "wagmi/chains";
 import { Toaster } from "react-hot-toast";
 import Homepage from "./pages/Homepage";
 
-const chains = [mainnet, sepolia];
+const chains = [polygon];
 const config = createConfig(
   getDefaultConfig({
     alchemyId: "EbWpcrEoNB5gzeDJi_clFzLbpbgTtuRt",

@@ -42,8 +42,14 @@ function useLottary() {
       .lotteries(Number(latest_lottery_id) - 1)
       .call();
 
+    console.log(lottery);
+
     if (!account) {
       toast.error("Please connect your wallet!");
+      return;
+    }
+    if (lottery.startTime == 0) {
+      toast.error("No ongoing lottery");
       return;
     }
     if (paymentType === "Polygon") {
@@ -51,6 +57,11 @@ function useLottary() {
 
       console.log(
         Web3.utils.fromWei(lottery.maticPrice.toString(), "ether").toString()
+      );
+
+      console.log(
+        Web3.utils.fromWei(lottery.maticPrice.toString(), "ether").toString() *
+          amount
       );
 
       const _pay = Web3.utils.toWei(
@@ -129,7 +140,10 @@ function useLottary() {
       LOTTERY_CONTRACT_ABI
     );
 
-    const tickets = await contract.methods.myTickets(account).call();
+    const tickets = await contract.methods.myTickets().call({
+      from: account,
+    });
+    console.log(tickets);
     return tickets;
   };
   const getData = async () => {
@@ -144,11 +158,13 @@ function useLottary() {
     const lottery = await contract.methods
       .lotteries(Number(latest_lottery_id) - 1)
       .call();
+    console.log(lottery);
     return lottery;
   };
   return {
     buyTicket,
     getData,
+    myTickets,
   };
 }
 

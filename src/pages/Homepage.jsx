@@ -14,18 +14,15 @@ function Homepage() {
   const { getData } = useLottary();
 
   useEffect(() => {
-    const fetchData = async () => {
-      const data = await getData();
-      setData(data);
-    };
-    fetchData();
-  }, []);
-
-  useEffect(() => {
     const interval = setInterval(() => {
-      console.log(data?.endTime);
-
-      const countDownDate = new Date(data ? data.endTime * 1000 : 0);
+      // check if data.endtime is smaller than current time
+      if (data && data.endTime * 1000 < new Date().getTime()) {
+        clearInterval(interval);
+        return;
+      }
+      const countDownDate = new Date(
+        data ? data.endTime * 1000 : new Date().getTime()
+      );
       const now = new Date().getTime();
       const distance = countDownDate - now;
 
@@ -42,12 +39,21 @@ function Homepage() {
       setSecond(seconds);
     }, 1000);
     return () => clearInterval(interval);
+  }, [data]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await getData();
+      setData(data);
+    };
+    fetchData();
   }, []);
+
   return (
     <div className="w-screen h-screen">
       <Header />
-      <div className="flex justify-center flex-col items-center mt-4 gap-4">
-        <p className="text-5xl">Get you tickets now !</p>
+      <div className="flex justify-center flex-col items-center mt-4 gap-4 text-center p-8">
+        <p className="text-5xl">Get your tickets now !</p>
         <p>
           <span className="text-3xl">{days}</span>D{" "}
           <span className="text-3xl">{hour}</span>H{" "}

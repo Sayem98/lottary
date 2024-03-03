@@ -9,16 +9,32 @@ import useLottary from "../hooks/useLottary";
 function LottarySection() {
   const [isLoading, setIsLoading] = useState(false);
   const [amount, setAmount] = useState("");
-  const [promoCode, setPromoCode] = useState("");
-  const [isCancled, setIsCancled] = useState(false);
   const [tickets, setTickets] = useState(0);
+  const [isCancled, setIsCancled] = useState(false);
 
   const [paymentType, setPaymentType] = useState("Polygon");
+  const [cost, setCost] = useState(0);
 
   const { address } = useAccount();
-  const { buyTicket } = useLottary();
+  const { buyTicket, myTickets } = useLottary();
 
-  const handleSubmit = async (e) => {};
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await myTickets();
+      setTickets(data.toString());
+    };
+    if (address) fetchData();
+  }, [address]);
+
+  useEffect(() => {
+    if (paymentType === "Polygon") {
+      setCost(amount * 1);
+    } else if (paymentType === "woke") {
+      setCost(amount * 65000);
+    } else {
+      setCost(amount * 30000);
+    }
+  }, [paymentType, amount]);
 
   const handleBuy = async (e) => {
     if (!amount) {
@@ -26,8 +42,13 @@ function LottarySection() {
       return;
     }
     setIsLoading(true);
-    await buyTicket(paymentType, amount);
-    setIsLoading(false);
+    try {
+      await buyTicket(paymentType, amount);
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -115,6 +136,18 @@ function LottarySection() {
           /> */}
         </>
       )}
+
+      <div className="flex justify-end">
+        <p className="text-lg">COST :</p>&nbsp;
+        <p className="text-lg">{cost}</p>&nbsp;
+        <p className="text-lg">
+          {paymentType === "Polygon"
+            ? "MATIC"
+            : paymentType === "woke"
+            ? "WOKE"
+            : "GONE"}
+        </p>
+      </div>
 
       <button
         className="uppercase text-lg bg-[#4f46e5] hover:bg-[#5b54e8] px-6 py-2 rounded-lg mt-4 shadow-xl"

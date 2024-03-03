@@ -1,9 +1,9 @@
 export const LOTTERY_CONTRACT_ADDRESS =
-  "0x0aEb084a1446d783A73E0F43CB030706CB66C0e2";
+  "0xfE3Da64D3e1E40a687f16517E7cc4c7A2675866d";
 export const WOKE_CONTRACT_ADDRESS =
-  "0x95D59d33E017533b996eAf351cf7428fE7510bc0";
+  "0x7f1a076Cd5D3a402f532237e3893F76d85d801a7";
 export const GONE_CONTRACT_ADDRESS =
-  "0x95D59d33E017533b996eAf351cf7428fE7510bc0";
+  "0x162539172b53E9a93b7d98Fb6c41682De558a320";
 export const LOTTERY_CONTRACT_ABI = [
   {
     inputs: [
@@ -92,6 +92,7 @@ export const LOTTERY_CONTRACT_ABI = [
     inputs: [{ internalType: "uint256", name: "", type: "uint256" }],
     name: "lotteries",
     outputs: [
+      { internalType: "uint256", name: "totalIds", type: "uint256" },
       { internalType: "uint256", name: "totalTickets", type: "uint256" },
       { internalType: "uint256", name: "totalPlayers", type: "uint256" },
       { internalType: "uint256", name: "startTime", type: "uint256" },
@@ -102,6 +103,13 @@ export const LOTTERY_CONTRACT_ABI = [
       { internalType: "bool", name: "isAcceptingWoke", type: "bool" },
       { internalType: "bool", name: "isAcceptingGone", type: "bool" },
     ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "myTickets",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
     stateMutability: "view",
     type: "function",
   },
