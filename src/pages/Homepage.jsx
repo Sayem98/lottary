@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import Header from "../components/Header";
 import SwapCard from "../components/SwapCard";
 import useLottary from "../hooks/useLottary";
+import { useAccount } from "wagmi";
+import Web3 from "web3";
 function Homepage() {
   // make a countdown timer
 
@@ -10,8 +12,35 @@ function Homepage() {
   const [minute, setMinute] = useState(0);
   const [second, setSecond] = useState(0);
   const [data, setData] = useState(null);
+  const [maticBalance, setMaticBalance] = useState(0);
+  const [wokeBalance, setWokBalance] = useState(0);
+  const [goneBalance, setGoneBalance] = useState(0);
 
-  const { getData } = useLottary();
+  const { getData, wokeBalanceF, goneBalanceF, maticBalanceF } = useLottary();
+  const { address } = useAccount();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await getData();
+      setData(data);
+      const _maticBalance = await maticBalanceF();
+      const _wokeBalance = await wokeBalanceF();
+      const _goneBalance = await goneBalanceF();
+
+      console.log(_maticBalance);
+      console.log(_wokeBalance);
+      console.log(_goneBalance);
+
+      setMaticBalance(_maticBalance);
+      setWokBalance(_wokeBalance);
+      setGoneBalance(_goneBalance);
+    };
+    try {
+      fetchData();
+    } catch (e) {
+      window.location.reload();
+    }
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -41,14 +70,6 @@ function Homepage() {
     return () => clearInterval(interval);
   }, [data]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const data = await getData();
-      setData(data);
-    };
-    fetchData();
-  }, []);
-
   return (
     <div className="w-screen h-screen">
       <Header />
@@ -60,6 +81,24 @@ function Homepage() {
           <span className="text-3xl">{minute}</span>M{" "}
           <span className="text-3xl">{second}</span>S
         </p>
+      </div>
+
+      <div className="flex justify-center flex-col items-center mt-4 gap-4 text-center p-8">
+        <p className="text-xl">Total Pot</p>
+        <div className=" flex justify-between gap-20 md:gap-28">
+          <div>
+            <p>Matic</p>
+            <p>{Number(maticBalance).toFixed(2)}</p>
+          </div>
+          <div>
+            <p>Woke</p>
+            <p>{Number(wokeBalance).toFixed(2)}</p>
+          </div>
+          <div>
+            <p>Gone</p>
+            <p>{Number(goneBalance).toFixed(2)}</p>
+          </div>
+        </div>
       </div>
 
       <SwapCard />

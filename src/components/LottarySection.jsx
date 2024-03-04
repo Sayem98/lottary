@@ -48,11 +48,12 @@ function LottarySection() {
       console.log(e);
     } finally {
       setIsLoading(false);
+      // window.location.reload();
     }
   };
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-2">
       {!isCancled && (
         <>
           <div className="text-lg text-gray-200 font-semibold uppercase flex justify-between">

@@ -34,15 +34,11 @@ function useLottary() {
       LOTTERY_CONTRACT_ADDRESS,
       LOTTERY_CONTRACT_ABI
     );
-    console.log(contract);
     const latest_lottery_id = await contract.methods.numberOfLotteries().call();
-    console.log(latest_lottery_id);
 
     const lottery = await contract.methods
       .lotteries(Number(latest_lottery_id) - 1)
       .call();
-
-    console.log(lottery);
 
     if (!account) {
       toast.error("Please connect your wallet!");
@@ -52,18 +48,9 @@ function useLottary() {
       toast.error("No ongoing lottery");
       return;
     }
+    const gas = await web3.eth.getGasPrice();
+    console.log(gas);
     if (paymentType === "Polygon") {
-      console.log("Polygon");
-
-      console.log(
-        Web3.utils.fromWei(lottery.maticPrice.toString(), "ether").toString()
-      );
-
-      console.log(
-        Web3.utils.fromWei(lottery.maticPrice.toString(), "ether").toString() *
-          amount
-      );
-
       const _pay = Web3.utils.toWei(
         (
           amount *
@@ -72,11 +59,11 @@ function useLottary() {
         "ether"
       );
 
-      console.log(_pay);
-
       await contract.methods.buyTickets(0, amount).send({
         from: account,
         value: _pay,
+        gas: 300000,
+        gasPrice: 250000000000,
       });
     } else if (paymentType === "woke") {
       let approve_amount =
@@ -93,11 +80,13 @@ function useLottary() {
         // approve
         await wokeContract.methods
           .approve(LOTTERY_CONTRACT_ADDRESS, approve_amount)
-          .send({ from: account });
+          .send({ from: account, gas: 300000, gasPrice: 250000000000 });
 
-        await contract.methods
-          .buyTickets(1, amount)
-          .send({ from: account, value: amount });
+        await contract.methods.buyTickets(1, amount).send({
+          from: account,
+          gas: 300000,
+          gasPrice: 250000000000,
+        });
       } catch (e) {
         toast.error("Transaction failed");
       }
@@ -116,11 +105,14 @@ function useLottary() {
         // approve
         await goneContract.methods
           .approve(LOTTERY_CONTRACT_ADDRESS, approve_amount)
-          .send({ from: account });
+          .send({ from: account, gas: 300000, gasPrice: 250000000000 });
 
-        await contract.methods
-          .buyTickets(2, amount)
-          .send({ from: account, value: amount });
+        await contract.methods.buyTickets(2, amount).send({
+          from: account,
+          value: amount,
+          gas: 300000,
+          gasPrice: 250000000000,
+        });
       } catch (e) {
         toast.error("Transaction failed");
       }
@@ -161,10 +153,47 @@ function useLottary() {
     console.log(lottery);
     return lottery;
   };
+  const wokeBalanceF = async () => {
+    const web3 = await getWeb3();
+    const wokeToken = await getContract(
+      web3,
+      WOKE_CONTRACT_ADDRESS,
+      TOKEN_CONTRACT_ABI
+    );
+
+    const balance = await wokeToken.methods
+      .balanceOf(LOTTERY_CONTRACT_ADDRESS)
+      .call();
+    return Web3.utils.fromWei(balance.toString(), "ether");
+  };
+
+  const goneBalanceF = async () => {
+    const web3 = await getWeb3();
+    const goneToken = await getContract(
+      web3,
+      GONE_CONTRACT_ADDRESS,
+      TOKEN_CONTRACT_ABI
+    );
+
+    const balance = await goneToken.methods
+      .balanceOf(LOTTERY_CONTRACT_ADDRESS)
+      .call();
+    return Web3.utils.fromWei(balance.toString(), "ether");
+  };
+
+  const maticBalanceF = async () => {
+    const web3 = await getWeb3();
+    const balance = await web3.eth.getBalance(LOTTERY_CONTRACT_ADDRESS);
+    return Web3.utils.fromWei(balance.toString(), "ether");
+  };
+
   return {
     buyTicket,
     getData,
     myTickets,
+    wokeBalanceF,
+    goneBalanceF,
+    maticBalanceF,
   };
 }
 
