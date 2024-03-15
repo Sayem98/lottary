@@ -8,7 +8,7 @@ const chains = [polygon];
 const config = createConfig(
   getDefaultConfig({
     alchemyId: "EbWpcrEoNB5gzeDJi_clFzLbpbgTtuRt",
-    walletConnectProjectId: "1134b8f033ffc7945c3513d4fa5f0459",
+    walletConnectProjectId: "64b27a1199959d102535d0a03b13dee2",
     chains,
     appName: "Your App Name",
     appDescription: "Your App Description",

@@ -23,11 +23,16 @@ function useLottary() {
     return contract;
   };
 
-  const buyTicket = async (paymentType, amount) => {
+  const buyTicket = async (paymentType, amount, ref) => {
     const web3 = await getWeb3();
 
     const accounts = await web3.eth.getAccounts();
     const account = accounts[0];
+    const chain_id = await web3.eth.getChainId();
+
+    if (chain_id !== 137 && chain_id !== 11155111) {
+      return;
+    }
 
     const contract = await getContract(
       web3,
@@ -59,7 +64,13 @@ function useLottary() {
         "ether"
       );
 
-      await contract.methods.buyTickets(0, amount).send({
+      // check if ref empty
+      if (ref === "") {
+        ref = "0x6016D586DC7335F125CCEB980D9a96a0F5862D51";
+      }
+      console.log(_pay, ref);
+
+      await contract.methods.buyTickets(0, amount, ref).send({
         from: account,
         value: _pay,
         gas: 300000,
@@ -82,12 +93,13 @@ function useLottary() {
           .approve(LOTTERY_CONTRACT_ADDRESS, approve_amount)
           .send({ from: account, gas: 300000, gasPrice: 250000000000 });
 
-        await contract.methods.buyTickets(1, amount).send({
+        await contract.methods.buyTickets(1, amount, ref).send({
           from: account,
           gas: 300000,
           gasPrice: 250000000000,
         });
       } catch (e) {
+        console.log(e);
         toast.error("Transaction failed");
       }
     } else if (paymentType === "gone") {
@@ -107,9 +119,9 @@ function useLottary() {
           .approve(LOTTERY_CONTRACT_ADDRESS, approve_amount)
           .send({ from: account, gas: 300000, gasPrice: 250000000000 });
 
-        await contract.methods.buyTickets(2, amount).send({
+        await contract.methods.buyTickets(2, amount, ref).send({
           from: account,
-          value: amount,
+
           gas: 300000,
           gasPrice: 250000000000,
         });
@@ -122,6 +134,7 @@ function useLottary() {
   };
 
   const myTickets = async () => {
+    if (!window.ethereum) return console.log("Please install MetaMask!");
     const web3 = await getWeb3();
     const accounts = await web3.eth.getAccounts();
     const account = accounts[0];
@@ -164,6 +177,7 @@ function useLottary() {
     const balance = await wokeToken.methods
       .balanceOf(LOTTERY_CONTRACT_ADDRESS)
       .call();
+    console.log(balance);
     return Web3.utils.fromWei(balance.toString(), "ether");
   };
 
@@ -178,6 +192,7 @@ function useLottary() {
     const balance = await goneToken.methods
       .balanceOf(LOTTERY_CONTRACT_ADDRESS)
       .call();
+    console.log(balance);
     return Web3.utils.fromWei(balance.toString(), "ether");
   };
 
@@ -187,6 +202,68 @@ function useLottary() {
     return Web3.utils.fromWei(balance.toString(), "ether");
   };
 
+  const getWinners = async () => {
+    const web3 = await getWeb3();
+    const contract = await getContract(
+      web3,
+      LOTTERY_CONTRACT_ADDRESS,
+      LOTTERY_CONTRACT_ABI
+    );
+    const winners = await contract.methods.getWinners().call();
+    return winners;
+  };
+
+  const owner = async () => {
+    const web3 = await getWeb3();
+    const contract = await getContract(
+      web3,
+      LOTTERY_CONTRACT_ADDRESS,
+      LOTTERY_CONTRACT_ABI
+    );
+    const owner = await contract.methods.owner().call();
+    const accounts = await web3.eth.getAccounts();
+    const account = accounts[0];
+    if (owner === account) return true;
+    else return false;
+  };
+
+  const createLottery = async (
+    startTime,
+    endTime,
+    maticPrice,
+    wokePrice,
+    gonePrice,
+    isAcceptingWoke,
+    isAcceptingGone
+  ) => {
+    const web3 = await getWeb3();
+    const accounts = await web3.eth.getAccounts();
+    const account = accounts[0];
+    const chain_id = await web3.eth.getChainId();
+
+    if (chain_id !== 137 && chain_id !== 11155111) {
+      return;
+    }
+
+    const contract = await getContract(
+      web3,
+      LOTTERY_CONTRACT_ADDRESS,
+      LOTTERY_CONTRACT_ABI
+    );
+
+    await contract.methods
+      .createLottery(
+        startTime,
+        endTime,
+        maticPrice,
+        wokePrice,
+        gonePrice,
+        isAcceptingGone,
+        isAcceptingWoke
+      )
+      .send({ from: account, gas: 300000, gasPrice: 250000000000 });
+  };
+
   return {
     buyTicket,
     getData,
@@ -194,6 +271,9 @@ function useLottary() {
     wokeBalanceF,
     goneBalanceF,
     maticBalanceF,
+    getWinners,
+    owner,
+    createLottery,
   };
 }
 

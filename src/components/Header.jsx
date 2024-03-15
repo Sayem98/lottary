@@ -4,7 +4,12 @@ function Header() {
   return (
     <header className="w-full">
       <div className="flex items-center justify-between bg-[#27262c] px-6 md:px-12 py-4 shadow-md">
-        <div className="flex gap-5 justify-center items-center">
+        <div
+          className="flex gap-5 justify-center items-center"
+          onClick={() => {
+            window.open("https://lottery.purplewavestudios.com/");
+          }}
+        >
           <img
             src="./images/tokens/woke.jpg"
             alt="USDT"

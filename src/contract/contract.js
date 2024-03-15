@@ -1,9 +1,17 @@
 export const LOTTERY_CONTRACT_ADDRESS =
-  "0xDaEc6cbF362cbe6a38FB96Aa5c25F72642acDFd6";
+  "0x680945ebc86318f429A988E26Ba22E038B145355";
 export const WOKE_CONTRACT_ADDRESS =
   "0x7f1a076Cd5D3a402f532237e3893F76d85d801a7";
 export const GONE_CONTRACT_ADDRESS =
   "0x162539172b53E9a93b7d98Fb6c41682De558a320";
+
+// export const LOTTERY_CONTRACT_ADDRESS =
+//   "0x517372Fce8Aa16CB366737E4f7822D75679281cb";
+// export const WOKE_CONTRACT_ADDRESS =
+//   "0x95D59d33E017533b996eAf351cf7428fE7510bc0";
+// export const GONE_CONTRACT_ADDRESS =
+//   "0x95D59d33E017533b996eAf351cf7428fE7510bc0";
+
 export const LOTTERY_CONTRACT_ABI = [
   {
     inputs: [
@@ -46,6 +54,7 @@ export const LOTTERY_CONTRACT_ABI = [
     inputs: [
       { internalType: "uint256", name: "_paymentType", type: "uint256" },
       { internalType: "uint256", name: "_amount", type: "uint256" },
+      { internalType: "address", name: "_referer", type: "address" },
     ],
     name: "buyTickets",
     outputs: [],
@@ -79,6 +88,13 @@ export const LOTTERY_CONTRACT_ABI = [
     name: "draw",
     outputs: [],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getWinners",
+    outputs: [{ internalType: "address[3]", name: "", type: "address[3]" }],
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -129,7 +145,35 @@ export const LOTTERY_CONTRACT_ABI = [
   },
   {
     inputs: [],
+    name: "referral_steps",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "address", name: "", type: "address" }],
+    name: "referrals",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "renounceOwnership",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "address", name: "_dev", type: "address" }],
+    name: "setDev",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "uint256", name: "_steps", type: "uint256" }],
+    name: "setReferralSteps",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

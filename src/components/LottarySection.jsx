@@ -5,8 +5,9 @@ import Web3 from "web3";
 import InputBox from "./InputBox";
 import Spinner from "./Spinner";
 import useLottary from "../hooks/useLottary";
+import CreateLottery from "./CreateLottery";
 
-function LottarySection() {
+function LottarySection({ referral }) {
   const [isLoading, setIsLoading] = useState(false);
   const [amount, setAmount] = useState("");
   const [tickets, setTickets] = useState(0);
@@ -16,7 +17,17 @@ function LottarySection() {
   const [cost, setCost] = useState(0);
 
   const { address } = useAccount();
-  const { buyTicket, myTickets } = useLottary();
+  const { buyTicket, myTickets, owner } = useLottary();
+
+  const [own, setOwn] = useState(true);
+
+  useEffect(() => {
+    const _ownerr = async () => {
+      const data = await owner();
+      setOwn(data);
+    };
+    if (address) _ownerr();
+  }, [address]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -28,11 +39,11 @@ function LottarySection() {
 
   useEffect(() => {
     if (paymentType === "Polygon") {
-      setCost(amount * 1);
+      setCost(amount * 0.82);
     } else if (paymentType === "woke") {
-      setCost(amount * 65000);
+      setCost(amount * 52000);
     } else {
-      setCost(amount * 30000);
+      setCost(amount * 26000);
     }
   }, [paymentType, amount]);
 
@@ -43,91 +54,96 @@ function LottarySection() {
     }
     setIsLoading(true);
     try {
-      await buyTicket(paymentType, amount);
+      console.log(paymentType, amount, referral);
+      await buyTicket(paymentType, amount, referral);
     } catch (e) {
       console.log(e);
     } finally {
       setIsLoading(false);
-      // window.location.reload();
+      window.location.reload();
     }
   };
 
   return (
-    <div className="flex flex-col gap-2">
-      {!isCancled && (
-        <>
-          <div className="text-lg text-gray-200 font-semibold uppercase flex justify-between">
-            <div className="flex items-center justify-between gap-8 w-full">
-              <div className="grid grid-cols-3 gap-0.5 w-full rounded-xl overflow-hidden">
-                <button
-                  className={`p-2.5 flex gap-2.5 items-center justify-center hover:opacity-75 b ${
-                    paymentType === "Polygon" ? "bg-primary" : "bg-white/10"
-                  }`}
-                  onClick={() => setPaymentType("Polygon")}
-                >
-                  <div className="relative flex">
-                    <img
-                      src="./images/chains/polygon.png"
-                      alt="BSC"
-                      className="object-contain w-9 h-9 rounded-full"
-                    />
+    <>
+      {own ? (
+        <CreateLottery />
+      ) : (
+        <div className="flex flex-col gap-2">
+          {!isCancled && (
+            <>
+              <div className="text-lg text-gray-200 font-semibold uppercase flex justify-between">
+                <div className="flex items-center justify-between gap-8 w-full">
+                  <div className="grid grid-cols-3 gap-0.5 w-full rounded-xl overflow-hidden">
+                    <button
+                      className={`p-2.5 flex gap-2.5 items-center justify-center hover:opacity-75 b ${
+                        paymentType === "Polygon" ? "bg-primary" : "bg-white/10"
+                      }`}
+                      onClick={() => setPaymentType("Polygon")}
+                    >
+                      <div className="relative flex">
+                        <img
+                          src="./images/chains/polygon.png"
+                          alt="BSC"
+                          className="object-contain w-9 h-9 rounded-full"
+                        />
+                      </div>
+                      MATIC
+                    </button>
+                    <button
+                      className={`p-2.5 flex gap-2.5 items-center justify-center hover:opacity-75 b ${
+                        paymentType === "woke" ? "bg-primary" : "bg-white/10"
+                      }`}
+                      onClick={() => setPaymentType("woke")}
+                    >
+                      <div className="relative flex">
+                        <img
+                          src="./images/tokens/woke.jpg"
+                          alt="USDT"
+                          className="object-contain w-9 h-9 rounded-full"
+                        />
+                        <img
+                          className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full border-1 border-primary"
+                          src="./images/chains/ethereum.svg"
+                        />
+                      </div>
+                      WOKE
+                    </button>
+                    <button
+                      className={`p-2.5 flex gap-2.5 items-center justify-center hover:opacity-75 b ${
+                        paymentType === "gone" ? "bg-primary" : "bg-white/10"
+                      }`}
+                      onClick={() => setPaymentType("gone")}
+                    >
+                      <div className="relative flex">
+                        <img
+                          src="./images/tokens/gone.jpg"
+                          alt="USDC"
+                          className="object-contain w-9 h-9 rounded-full"
+                        />
+                        <img
+                          className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full border-1 border-primary"
+                          src="./images/chains/ethereum.svg"
+                        />
+                      </div>
+                      GONE
+                    </button>
                   </div>
-                  MATIC
-                </button>
-                <button
-                  className={`p-2.5 flex gap-2.5 items-center justify-center hover:opacity-75 b ${
-                    paymentType === "woke" ? "bg-primary" : "bg-white/10"
-                  }`}
-                  onClick={() => setPaymentType("woke")}
-                >
-                  <div className="relative flex">
-                    <img
-                      src="./images/tokens/woke.jpg"
-                      alt="USDT"
-                      className="object-contain w-9 h-9 rounded-full"
-                    />
-                    <img
-                      className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full border-1 border-primary"
-                      src="./images/chains/ethereum.svg"
-                    />
-                  </div>
-                  WOKE
-                </button>
-                <button
-                  className={`p-2.5 flex gap-2.5 items-center justify-center hover:opacity-75 b ${
-                    paymentType === "gone" ? "bg-primary" : "bg-white/10"
-                  }`}
-                  onClick={() => setPaymentType("gone")}
-                >
-                  <div className="relative flex">
-                    <img
-                      src="./images/tokens/gone.jpg"
-                      alt="USDC"
-                      className="object-contain w-9 h-9 rounded-full"
-                    />
-                    <img
-                      className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full border-1 border-primary"
-                      src="./images/chains/ethereum.svg"
-                    />
-                  </div>
-                  GONE
-                </button>
+                </div>
               </div>
-            </div>
-          </div>
-          <div className="flex justify-between">
-            <p className="text-lg">MY TICKETS</p>
-            <p className="text-lg">{tickets}</p>
-          </div>
-          <InputBox
-            name="amount"
-            label="Amount"
-            type="number"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            placeholder="Enter the amount"
-          />
-          {/* <InputBox
+              <div className="flex justify-between">
+                <p className="text-lg">MY TICKETS</p>
+                <p className="text-lg">{tickets}</p>
+              </div>
+              <InputBox
+                name="amount"
+                label="Amount"
+                type="number"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="Enter the amount"
+              />
+              {/* <InputBox
             name="promoCode"
             label="Promo Code"
             type="text"
@@ -135,29 +151,31 @@ function LottarySection() {
             onChange={(e) => setPromoCode(e.target.value)}
             placeholder="Enter the promo code"
           /> */}
-        </>
+            </>
+          )}
+
+          <div className="flex justify-end">
+            <p className="text-lg">COST :</p>&nbsp;
+            <p className="text-lg">{cost}</p>&nbsp;
+            <p className="text-lg">
+              {paymentType === "Polygon"
+                ? "MATIC"
+                : paymentType === "woke"
+                ? "WOKE"
+                : "GONE"}
+            </p>
+          </div>
+
+          <button
+            className="uppercase text-lg bg-[#4f46e5] hover:bg-[#5b54e8] px-6 py-2 rounded-lg mt-4 shadow-xl"
+            onClick={handleBuy}
+            disabled={false}
+          >
+            {isLoading ? <Spinner /> : isCancled ? "Withdraw" : "Buy"}
+          </button>
+        </div>
       )}
-
-      <div className="flex justify-end">
-        <p className="text-lg">COST :</p>&nbsp;
-        <p className="text-lg">{cost}</p>&nbsp;
-        <p className="text-lg">
-          {paymentType === "Polygon"
-            ? "MATIC"
-            : paymentType === "woke"
-            ? "WOKE"
-            : "GONE"}
-        </p>
-      </div>
-
-      <button
-        className="uppercase text-lg bg-[#4f46e5] hover:bg-[#5b54e8] px-6 py-2 rounded-lg mt-4 shadow-xl"
-        onClick={handleBuy}
-        disabled={isLoading}
-      >
-        {isLoading ? <Spinner /> : isCancled ? "Withdraw" : "Buy"}
-      </button>
-    </div>
+    </>
   );
 }
 

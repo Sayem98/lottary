@@ -4,6 +4,9 @@ import SwapCard from "../components/SwapCard";
 import useLottary from "../hooks/useLottary";
 import { useAccount } from "wagmi";
 import Web3 from "web3";
+import toast from "react-hot-toast";
+import Footer from "../components/Footer";
+
 function Homepage() {
   // make a countdown timer
 
@@ -21,26 +24,42 @@ function Homepage() {
 
   useEffect(() => {
     const fetchData = async () => {
+      const web3 = new Web3(window.ethereum);
+      const chain_id = await web3.eth.getChainId();
+      if (chain_id !== 137 && chain_id !== 11155111) {
+        console.log("Wrong chain");
+        return;
+      }
+
       const data = await getData();
       setData(data);
-      const _maticBalance = await maticBalanceF();
-      const _wokeBalance = await wokeBalanceF();
-      const _goneBalance = await goneBalanceF();
+      try {
+        const _maticBalance = await maticBalanceF();
+        setMaticBalance(_maticBalance);
+      } catch (e) {
+        console.log("Matic balance error");
+      }
 
-      console.log(_maticBalance);
-      console.log(_wokeBalance);
-      console.log(_goneBalance);
+      try {
+        const _wokeBalance = await wokeBalanceF();
+        setWokBalance(_wokeBalance);
+      } catch (e) {
+        console.log("Woke balance error");
+      }
 
-      setMaticBalance(_maticBalance);
-      setWokBalance(_wokeBalance);
-      setGoneBalance(_goneBalance);
+      try {
+        const _goneBalance = await goneBalanceF();
+        setGoneBalance(_goneBalance);
+      } catch (e) {
+        console.log("Gone balance error");
+      }
     };
     try {
       fetchData();
     } catch (e) {
       window.location.reload();
     }
-  }, []);
+  }, [address]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -71,7 +90,7 @@ function Homepage() {
   }, [data]);
 
   return (
-    <div className="w-screen h-screen">
+    <div className="w-screen h-screen home">
       <Header />
       <div className="flex justify-center flex-col items-center mt-4 gap-4 text-center p-8">
         <p className="text-5xl">Get your tickets now !</p>
@@ -102,6 +121,7 @@ function Homepage() {
       </div>
 
       <SwapCard />
+      <Footer />
     </div>
   );
 }

@@ -1,7 +1,217 @@
 // SPDX-License-Identifier: MIT
 
-import "./interfaces/IERC20.sol";
-import "./ownable/Ownable.sol";
+// File contracts/interfaces/IERC20.sol
+
+// Original license: SPDX_License_Identifier: MIT
+
+pragma solidity ^0.8.0;
+
+interface IERC20 {
+    /**
+     * @dev Emitted when `value` tokens are moved from one account (`from`) to
+     * another (`to`).
+     *
+     * Note that `value` may be zero.
+     */
+    event Transfer(address indexed from, address indexed to, uint256 value);
+
+    /**
+     * @dev Emitted when the allowance of a `spender` for an `owner` is set by
+     * a call to {approve}. `value` is the new allowance.
+     */
+    event Approval(address indexed owner, address indexed spender, uint256 value);
+
+    /**
+     * @dev Returns the value of tokens in existence.
+     */
+    function totalSupply() external view returns (uint256);
+
+    /**
+     * @dev Returns the value of tokens owned by `account`.
+     */
+    function balanceOf(address account) external view returns (uint256);
+
+    /**
+     * @dev Moves a `value` amount of tokens from the caller's account to `to`.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * Emits a {Transfer} event.
+     */
+    function transfer(address to, uint256 value) external returns (bool);
+
+    /**
+     * @dev Returns the remaining number of tokens that `spender` will be
+     * allowed to spend on behalf of `owner` through {transferFrom}. This is
+     * zero by default.
+     *
+     * This value changes when {approve} or {transferFrom} are called.
+     */
+    function allowance(address owner, address spender) external view returns (uint256);
+
+    /**
+     * @dev Sets a `value` amount of tokens as the allowance of `spender` over the
+     * caller's tokens.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * IMPORTANT: Beware that changing an allowance with this method brings the risk
+     * that someone may use both the old and the new allowance by unfortunate
+     * transaction ordering. One possible solution to mitigate this race
+     * condition is to first reduce the spender's allowance to 0 and set the
+     * desired value afterwards:
+     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
+     *
+     * Emits an {Approval} event.
+     */
+    function approve(address spender, uint256 value) external returns (bool);
+
+    /**
+     * @dev Moves a `value` amount of tokens from `from` to `to` using the
+     * allowance mechanism. `value` is then deducted from the caller's
+     * allowance.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * Emits a {Transfer} event.
+     */
+    function transferFrom(address from, address to, uint256 value) external returns (bool);
+}
+
+
+// File contracts/utils/Context.sol
+
+// Original license: SPDX_License_Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.0.1) (utils/Context.sol)
+
+pragma solidity ^0.8.0;
+
+/**
+ * @dev Provides information about the current execution context, including the
+ * sender of the transaction and its data. While these are generally available
+ * via msg.sender and msg.data, they should not be accessed in such a direct
+ * manner, since when dealing with meta-transactions the account sending and
+ * paying for execution may not be the actual sender (as far as an application
+ * is concerned).
+ *
+ * This contract is only required for intermediate, library-like contracts.
+ */
+abstract contract Context {
+    function _msgSender() internal view virtual returns (address) {
+        return msg.sender;
+    }
+
+    function _msgData() internal view virtual returns (bytes calldata) {
+        return msg.data;
+    }
+
+    function _contextSuffixLength() internal view virtual returns (uint256) {
+        return 0;
+    }
+}
+
+
+// File contracts/ownable/Ownable.sol
+
+// Original license: SPDX_License_Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.0.0) (access/Ownable.sol)
+
+pragma solidity ^0.8.0;
+/**
+ * @dev Contract module which provides a basic access control mechanism, where
+ * there is an account (an owner) that can be granted exclusive access to
+ * specific functions.
+ *
+ * The initial owner is set to the address provided by the deployer. This can
+ * later be changed with {transferOwnership}.
+ *
+ * This module is used through inheritance. It will make available the modifier
+ * `onlyOwner`, which can be applied to your functions to restrict their use to
+ * the owner.
+ */
+abstract contract Ownable is Context {
+    address private _owner;
+
+    /**
+     * @dev The caller account is not authorized to perform an operation.
+     */
+    error OwnableUnauthorizedAccount(address account);
+
+    /**
+     * @dev The owner is not a valid owner account. (eg. `address(0)`)
+     */
+    error OwnableInvalidOwner(address owner);
+
+    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+
+    /**
+     * @dev Initializes the contract setting the address provided by the deployer as the initial owner.
+     */
+    constructor(address initialOwner) {
+        if (initialOwner == address(0)) {
+            revert OwnableInvalidOwner(address(0));
+        }
+        _transferOwnership(initialOwner);
+    }
+
+    /**
+     * @dev Throws if called by any account other than the owner.
+     */
+    modifier onlyOwner() {
+        _checkOwner();
+        _;
+    }
+
+    /**
+     * @dev Returns the address of the current owner.
+     */
+    function owner() public view virtual returns (address) {
+        return _owner;
+    }
+
+    /**
+     * @dev Throws if the sender is not the owner.
+     */
+    function _checkOwner() internal view virtual {
+        if (owner() != _msgSender()) {
+            revert OwnableUnauthorizedAccount(_msgSender());
+        }
+    }
+
+    /**
+     * @dev Leaves the contract without owner. It will not be possible to call
+     * `onlyOwner` functions. Can only be called by the current owner.
+     *
+     * NOTE: Renouncing ownership will leave the contract without an owner,
+     * thereby disabling any functionality that is only available to the owner.
+     */
+    function renounceOwnership() public virtual onlyOwner {
+        _transferOwnership(address(0));
+    }
+
+    /**
+     * @dev Transfers ownership of the contract to a new account (`newOwner`).
+     * Can only be called by the current owner.
+     */
+    function transferOwnership(address newOwner) public virtual onlyOwner {
+        if (newOwner == address(0)) {
+            revert OwnableInvalidOwner(address(0));
+        }
+        _transferOwnership(newOwner);
+    }
+
+    /**
+     * @dev Transfers ownership of the contract to a new account (`newOwner`).
+     * Internal function without access restriction.
+     */
+    function _transferOwnership(address newOwner) internal virtual {
+        address oldOwner = _owner;
+        _owner = newOwner;
+        emit OwnershipTransferred(oldOwner, newOwner);
+    }
+}
+
+
 
 pragma solidity ^0.8.0;
 
@@ -11,13 +221,16 @@ contract Lotteries is Ownable {
 
     // ticket range for each user in a lottery  --> start and end of each buy
     struct TicketRange {
+        address owner;
         uint start;
         uint end;
     }
 
-    
+
     struct Lottery{
-        mapping(address => TicketRange[]) tickets; // tickets of each user in a lottery --> user address and ticket range
+
+        mapping(uint => TicketRange) tickets; // tickets of each user in a lottery --> user address and ticket range
+        uint totalIds;
         uint totalTickets; // total tickets in a lottery
         mapping(address=>uint) totalTicketsPerUser; // total tickets of each user in a lottery
         uint totalPlayers; // total players in a lottery
@@ -30,6 +243,7 @@ contract Lotteries is Ownable {
         uint gonePrice; // price of a ticket in gone
         bool isAcceptingWoke; // is accepting woke tokens
         bool isAcceptingGone; // is accepting gone tokens
+
     }
 
     mapping (uint => Lottery) public lotteries; // all lotteries
@@ -44,6 +258,14 @@ contract Lotteries is Ownable {
 
     address public dev;
 
+    mapping(address => uint) public referrals;
+
+    uint public referral_steps = 5;
+
+
+    
+
+
     constructor(address _woke, address _gone) Ownable(msg.sender) {
         woke = IERC20(_woke);
         gone = IERC20(_gone);
@@ -52,10 +274,10 @@ contract Lotteries is Ownable {
 
 
     function createLottery(
-        uint _startTime, 
-        uint _endTime, 
-        uint _maticPrice, 
-        uint _wokePrice, 
+        uint _startTime,
+        uint _endTime,
+        uint _maticPrice,
+        uint _wokePrice,
         uint _gonePrice,
         bool _isAcceptingWoke, // set to true if accepting woke tokens
         bool _isAcceptingGone // set to true if accepting gone tokens
@@ -81,7 +303,7 @@ contract Lotteries is Ownable {
     }
 
     // payment type 0 = matic, 1 = woke, 2 = gone
-    function buyTickets(uint _paymentType, uint _amount) public payable {
+    function buyTickets(uint _paymentType, uint _amount, address _referer) public payable {
         // check amount
         require(_amount > 0, "Amount should be greater than 0");
         // check if the lottery is ongoing
@@ -92,37 +314,70 @@ contract Lotteries is Ownable {
             // matic
             require(msg.value >= lotteries[numberOfLotteries-1].maticPrice * _amount, "Invalid amount");
         }else if(_paymentType == 1){
-            // woke    
+            // woke
             require(lotteries[numberOfLotteries-1].isAcceptingWoke, "Woke is not accepted");
-            require(woke.transferFrom(msg.sender, address(this), (lotteries[numberOfLotteries-1].wokePrice * _amount)/10**18), "Transfer failed");
+            require(woke.transferFrom(msg.sender, address(this), (lotteries[numberOfLotteries-1].wokePrice * _amount)), "Transfer failed");
         }else if(_paymentType == 2){
             // gone
             require(lotteries[numberOfLotteries-1].isAcceptingGone, "Gone is not accepted");
-            require(gone.transferFrom(msg.sender, address(this), (lotteries[numberOfLotteries-1].gonePrice * _amount)/10**18), "Transfer failed");
+            require(gone.transferFrom(msg.sender, address(this), (lotteries[numberOfLotteries-1].gonePrice * _amount)), "Transfer failed");
         }else{
             revert("Invalid payment type");
         }
 
+        uint referPercentage = 0;
+
+        if((_referer != address(0) || _referer != msg.sender) && lotteries[numberOfLotteries-1].totalTicketsPerUser[msg.sender]==0){
+            // referer
+            if(referrals[msg.sender] < 5){
+                referPercentage  = 5;
+            }else if(referrals[msg.sender] < 10){
+                referPercentage  = 7;
+            }else if(referrals[msg.sender] < 15){
+                referPercentage  = 9;
+            }else if(referrals[msg.sender] < 20){
+                referPercentage  = 11;
+            }else {
+                referPercentage  = 13;
+            }
+
+         // update refer count
+            referrals[msg.sender]++;
+
+            // based on payment type send refer amount
+            if(_paymentType == 0){
+                payable(_referer).transfer((lotteries[numberOfLotteries-1].maticPrice * _amount * referPercentage)/100);
+            }else if(_paymentType == 1){
+                woke.transfer(_referer, (lotteries[numberOfLotteries-1].wokePrice * _amount * referPercentage)/100);
+            }else if(_paymentType == 2){
+                gone.transfer(_referer, (lotteries[numberOfLotteries-1].gonePrice * _amount * referPercentage)/100);
+            }
+
+        }
+
         //update the tickets
-        lotteries[numberOfLotteries-1].tickets[msg.sender].push(TicketRange(lotteries[numberOfLotteries-1].totalTickets, lotteries[numberOfLotteries-1].totalTickets + _amount - 1));
+        lotteries[numberOfLotteries-1].tickets[lotteries[numberOfLotteries-1].totalIds].start = lotteries[numberOfLotteries-1].totalTickets;
+        lotteries[numberOfLotteries-1].tickets[lotteries[numberOfLotteries-1].totalIds].end = lotteries[numberOfLotteries-1].totalTickets + _amount - 1;
+        lotteries[numberOfLotteries-1].tickets[lotteries[numberOfLotteries-1].totalIds].owner = msg.sender;
         lotteries[numberOfLotteries-1].totalTickets += _amount;
         lotteries[numberOfLotteries-1].totalTicketsPerUser[msg.sender] += _amount;
+        lotteries[numberOfLotteries-1].totalIds ++;
 
         // check if the user is already in the players list
-        if(lotteries[numberOfLotteries-1].totalTicketsPerUser[msg.sender]==0){
+        
             lotteries[numberOfLotteries-1].totalPlayers++;
-        }
+
+        
 
     }
 
     function getWinner(uint _ticketNumber) private view returns(address){
         address winner;
-        for(uint i=0; i<lotteries[numberOfLotteries-1].totalPlayers; i++){
-            if(_ticketNumber >= lotteries[numberOfLotteries-1].tickets[lotteries[numberOfLotteries-1].winners[i]][0].start && _ticketNumber <= lotteries[numberOfLotteries-1].tickets[lotteries[numberOfLotteries-1].winners[i]][0].end){
-                winner = lotteries[numberOfLotteries-1].winners[i];
-                break;
+         for(uint i = 0; i<lotteries[numberOfLotteries-1].totalIds; i++){
+            if(_ticketNumber>=lotteries[numberOfLotteries-1].tickets[i].start && _ticketNumber<=lotteries[numberOfLotteries-1].tickets[i].end){
+                winner = lotteries[numberOfLotteries-1].tickets[i].owner;
             }
-        }
+         }
         return winner;
     }
     // draw the latest lottery
@@ -231,7 +486,7 @@ contract Lotteries is Ownable {
         }
 
     }
-    
+
 
 
     function random() private returns (uint256) {
@@ -254,30 +509,24 @@ contract Lotteries is Ownable {
         IERC20(_token).transfer(owner(), (_amount*50)/100);
     }
 
-
-    // Getting data
-
-    function getTickets(address _user) public view returns(TicketRange[] memory){
-        return lotteries[numberOfLotteries-1].tickets[_user];
+    function myTickets() external view returns(uint){
+        return lotteries[numberOfLotteries-1].totalTicketsPerUser[msg.sender];
     }
 
-    function getTotalTickets(address _user) public view returns(uint){
-        return lotteries[numberOfLotteries-1].totalTicketsPerUser[_user];
+    function setReferralSteps(uint _steps) public onlyOwner {
+        referral_steps = _steps;
     }
 
-    function getTotalPlayers() public view returns(uint){
-        return lotteries[numberOfLotteries-1].totalPlayers;
+    function setDev(address _dev) public  {
+        require(msg.sender == dev, "Not authorized");
+        dev = _dev;
     }
 
-    function getWinners() public view returns(address[3] memory){
+    function getWinners () public view returns(address[3] memory){
         return lotteries[numberOfLotteries-1].winners;
     }
 
-    function getPrizes() public view returns(uint[3] memory){
-        return lotteries[numberOfLotteries-1].prizes;
-    }
 
-    
-
-    
 }
+
+
