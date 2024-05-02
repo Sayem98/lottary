@@ -10,8 +10,9 @@ function CreateLottery() {
   const [maticPrice, setMaticPrice] = useState(0);
   const [wokePrice, setWokePrice] = useState(0);
   const [gonePrice, setGonePrice] = useState(0);
-  const [isAcceptingWoke, setIsAcceptingWoke] = useState(true);
-  const [isAcceptingGone, setIsAcceptingGone] = useState(true);
+  const [licPrice, setLicPrice] = useState(0);
+  const [moonPrice, setMoonPrice] = useState(0);
+  const [jokerPrice, setJokerPrice] = useState(0);
 
   const { createLottery } = useLottary();
 
@@ -26,17 +27,12 @@ function CreateLottery() {
     const matic = Web3.utils.toWei(maticPrice.toString(), "ether");
     const woke = Web3.utils.toWei(wokePrice.toString(), "ether");
     const gone = Web3.utils.toWei(gonePrice.toString(), "ether");
+    const lic = Web3.utils.toWei(licPrice.toString(), "ether");
+    const moon = Web3.utils.toWei(moonPrice.toString(), "ether");
+    const joker = Web3.utils.toWei(jokerPrice.toString(), "ether");
 
     try {
-      await createLottery(
-        start,
-        end,
-        matic,
-        woke,
-        gone,
-        isAcceptingWoke,
-        isAcceptingGone
-      );
+      await createLottery(start, end, matic, woke, gone, lic, moon, joker);
     } catch (e) {
       console.log(e);
     }
@@ -127,27 +123,33 @@ function CreateLottery() {
           />
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-white text-center">Is accepting Woke</label>
+          <label className="text-white text-center">LIC Price</label>
           <input
-            type="text"
-            placeholder="Is accepting woke"
+            type="number"
+            placeholder="Gone Price"
             className="rounded p-1 "
-            value={isAcceptingWoke}
-            onChange={(e) => {
-              setIsAcceptingWoke(e.target.value);
-            }}
+            value={licPrice}
+            onChange={(e) => setLicPrice(e.target.value)}
           />
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-white text-center">Is accepting gone</label>
+          <label className="text-white text-center">Moon Price</label>
           <input
-            type="text"
-            placeholder="Is accepting gone"
+            type="number"
+            placeholder="Gone Price"
             className="rounded p-1 "
-            value={isAcceptingGone}
-            onChange={(e) => {
-              setIsAcceptingGone(e.target.value);
-            }}
+            value={moonPrice}
+            onChange={(e) => setMoonPrice(e.target.value)}
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-white text-center">Joker Price</label>
+          <input
+            type="number"
+            placeholder="Gone Price"
+            className="rounded p-1 "
+            value={jokerPrice}
+            onChange={(e) => setJokerPrice(e.target.value)}
           />
         </div>
         <button className="bg-green-500 rounded p-2" onClick={handleCreate}>

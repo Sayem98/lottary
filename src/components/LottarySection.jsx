@@ -6,28 +6,79 @@ import InputBox from "./InputBox";
 import Spinner from "./Spinner";
 import useLottary from "../hooks/useLottary";
 import CreateLottery from "./CreateLottery";
+import MATIC from "../images/chains/polygon.png";
+import WOKE from "../images/tokens/woke.jpg";
+import GONE from "../images/tokens/gone.jpg";
+import LLC from "../images/tokens/gone.jpg";
+import MOON from "../images/tokens/gone.jpg";
+
+const options = [
+  {
+    name: "MATIC",
+    value: "polygon",
+    img: MATIC,
+  },
+  {
+    name: "WOKE",
+    value: "woke",
+    img: WOKE,
+  },
+  {
+    name: "GONE",
+    value: "gone",
+    img: GONE,
+  },
+  {
+    name: "LIC",
+    value: "lic",
+    img: LLC,
+  },
+  {
+    name: "MOON",
+    value: "moon",
+    img: MOON,
+  },
+  {
+    name: "JOKER",
+    value: "joker",
+    img: MOON,
+  },
+];
 
 function LottarySection({ referral }) {
   const [isLoading, setIsLoading] = useState(false);
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState(0);
   const [tickets, setTickets] = useState(0);
   const [isCancled, setIsCancled] = useState(false);
+  const [prices, setPrices] = useState(null);
+  const [loading2, setLoading2] = useState(false);
 
-  const [paymentType, setPaymentType] = useState("Polygon");
+  const [paymentType, setPaymentType] = useState("polygon");
   const [cost, setCost] = useState(0);
 
-  const { address } = useAccount();
-  const { buyTicket, myTickets, owner } = useLottary();
+  const { address, isConnected } = useAccount();
+  const { buyTicket, myTickets, owner, getLotteryPrices } = useLottary();
 
-  const [own, setOwn] = useState(true);
+  const [own, setOwn] = useState(false);
 
   useEffect(() => {
     const _ownerr = async () => {
-      const data = await owner();
-      setOwn(data);
+      setLoading2(true);
+      try {
+        const data = await owner();
+        setOwn(data);
+        const _prices = await getLotteryPrices();
+        console.log(_prices);
+        setPrices(_prices);
+        setLoading2(false);
+      } catch (err) {
+        console.log(err);
+        setLoading2(false);
+      }
     };
     if (address) _ownerr();
-  }, [address]);
+  }, []);
+  console.log(loading2);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -38,12 +89,19 @@ function LottarySection({ referral }) {
   }, [address]);
 
   useEffect(() => {
-    if (paymentType === "Polygon") {
-      setCost(amount * 0.82);
+    console.log("payment type:", paymentType);
+    if (paymentType === "polygon") {
+      setCost(amount * prices?.maticPrice);
     } else if (paymentType === "woke") {
-      setCost(amount * 52000);
-    } else {
-      setCost(amount * 26000);
+      setCost(amount * prices?.wokePrice);
+    } else if (paymentType === "gone") {
+      setCost(amount * prices?.gonePrice);
+    } else if (paymentType === "lic") {
+      setCost(amount * prices?.licPrice);
+    } else if (paymentType === "moon") {
+      setCost(amount * prices?.moonPrice);
+    } else if (paymentType === "joker") {
+      setCost(amount * prices?.jokerPrice);
     }
   }, [paymentType, amount]);
 
@@ -55,7 +113,21 @@ function LottarySection({ referral }) {
     setIsLoading(true);
     try {
       console.log(paymentType, amount, referral);
-      await buyTicket(paymentType, amount, referral);
+      let unitPrice = 0;
+      if (paymentType === "polygon") {
+        unitPrice = prices.maticPrice;
+      } else if (paymentType === "woke") {
+        unitPrice = prices.wokePrice;
+      } else if (paymentType === "gone") {
+        unitPrice = prices.gonePrice;
+      } else if (paymentType === "lic") {
+        unitPrice = prices.licPrice;
+      } else if (paymentType === "moon") {
+        unitPrice = prices.moonPrice;
+      } else if (paymentType === "joker") {
+        unitPrice = prices.jokerPrice;
+      }
+      await buyTicket(paymentType, amount, referral, unitPrice);
     } catch (e) {
       console.log(e);
     } finally {
@@ -63,8 +135,9 @@ function LottarySection({ referral }) {
       window.location.reload();
     }
   };
-
-  return (
+  return loading2 ? (
+    <Spinner />
+  ) : (
     <>
       {own ? (
         <CreateLottery />
@@ -73,62 +146,27 @@ function LottarySection({ referral }) {
           {!isCancled && (
             <>
               <div className="text-lg text-gray-200 font-semibold uppercase flex justify-between">
-                <div className="flex items-center justify-between gap-8 w-full">
-                  <div className="grid grid-cols-3 gap-0.5 w-full rounded-xl overflow-hidden">
-                    <button
-                      className={`p-2.5 flex gap-2.5 items-center justify-center hover:opacity-75 b ${
-                        paymentType === "Polygon" ? "bg-primary" : "bg-white/10"
-                      }`}
-                      onClick={() => setPaymentType("Polygon")}
-                    >
-                      <div className="relative flex">
-                        <img
-                          src="./images/chains/polygon.png"
-                          alt="BSC"
-                          className="object-contain w-9 h-9 rounded-full"
-                        />
-                      </div>
-                      MATIC
-                    </button>
-                    <button
-                      className={`p-2.5 flex gap-2.5 items-center justify-center hover:opacity-75 b ${
-                        paymentType === "woke" ? "bg-primary" : "bg-white/10"
-                      }`}
-                      onClick={() => setPaymentType("woke")}
-                    >
-                      <div className="relative flex">
-                        <img
-                          src="./images/tokens/woke.jpg"
-                          alt="USDT"
-                          className="object-contain w-9 h-9 rounded-full"
-                        />
-                        <img
-                          className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full border-1 border-primary"
-                          src="./images/chains/ethereum.svg"
-                        />
-                      </div>
-                      WOKE
-                    </button>
-                    <button
-                      className={`p-2.5 flex gap-2.5 items-center justify-center hover:opacity-75 b ${
-                        paymentType === "gone" ? "bg-primary" : "bg-white/10"
-                      }`}
-                      onClick={() => setPaymentType("gone")}
-                    >
-                      <div className="relative flex">
-                        <img
-                          src="./images/tokens/gone.jpg"
-                          alt="USDC"
-                          className="object-contain w-9 h-9 rounded-full"
-                        />
-                        <img
-                          className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full border-1 border-primary"
-                          src="./images/chains/ethereum.svg"
-                        />
-                      </div>
-                      GONE
-                    </button>
-                  </div>
+                <div className="flex items-center justify-between gap-2 w-full">
+                  <h2 className="w-[60%]">Select Payment Type:</h2>
+                  {/* <img src={WOKE} alt="WOKE" /> */}
+
+                  <select
+                    className="w-[30%] bg-[#27262C] rounded-md p-1"
+                    onChange={(e) => {
+                      console.log("Selecting");
+                      setPaymentType(e.target.value);
+                    }}
+                  >
+                    {options.map((option, index) => {
+                      return (
+                        <option value={option.value} key={index}>
+                          {" "}
+                          <p>{option.name}</p>
+                          <img src={WOKE} alt="WOKE" />
+                        </option>
+                      );
+                    })}
+                  </select>
                 </div>
               </div>
               <div className="flex justify-between">
@@ -143,26 +181,25 @@ function LottarySection({ referral }) {
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="Enter the amount"
               />
-              {/* <InputBox
-            name="promoCode"
-            label="Promo Code"
-            type="text"
-            value={promoCode}
-            onChange={(e) => setPromoCode(e.target.value)}
-            placeholder="Enter the promo code"
-          /> */}
             </>
           )}
 
           <div className="flex justify-end">
             <p className="text-lg">COST :</p>&nbsp;
-            <p className="text-lg">{cost}</p>&nbsp;
+            <p className="text-lg">{isNaN(cost) ? 0 : cost}</p>
+            &nbsp;
             <p className="text-lg">
-              {paymentType === "Polygon"
+              {paymentType === "polygon"
                 ? "MATIC"
                 : paymentType === "woke"
                 ? "WOKE"
-                : "GONE"}
+                : paymentType === "gone"
+                ? "GONE"
+                : paymentType === "lic"
+                ? "LIC"
+                : paymentType === "moon"
+                ? "MOON"
+                : "JOKER"}
             </p>
           </div>
 

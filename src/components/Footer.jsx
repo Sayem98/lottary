@@ -5,7 +5,7 @@ function Footer() {
         <button
           onClick={() => {
             window.open(
-              "https://polygonscan.com/address/0x680945ebc86318f429a988e26ba22e038b145355#code"
+              "https://polygonscan.com/address/0xd1aDf025bA220e288B011172370DF5e316173017"
             );
           }}
         >

@@ -18,8 +18,19 @@ function Homepage() {
   const [maticBalance, setMaticBalance] = useState(0);
   const [wokeBalance, setWokBalance] = useState(0);
   const [goneBalance, setGoneBalance] = useState(0);
+  const [licBalance, setLicBalance] = useState(0);
+  const [moonBalance, setMoonBalance] = useState(0);
+  const [jokerBalance, setJokerBalance] = useState(0);
 
-  const { getData, wokeBalanceF, goneBalanceF, maticBalanceF } = useLottary();
+  const {
+    getData,
+    wokeBalanceF,
+    goneBalanceF,
+    maticBalanceF,
+    licBalanceF,
+    moonBalanceF,
+    jokerBalanceF,
+  } = useLottary();
   const { address } = useAccount();
 
   useEffect(() => {
@@ -32,6 +43,7 @@ function Homepage() {
       }
 
       const data = await getData();
+      console.log(data);
       setData(data);
       try {
         const _maticBalance = await maticBalanceF();
@@ -53,6 +65,27 @@ function Homepage() {
       } catch (e) {
         console.log("Gone balance error");
       }
+
+      try {
+        const _goneBalance = await licBalanceF();
+        setLicBalance(_goneBalance);
+      } catch (e) {
+        console.log("lic balance error");
+      }
+
+      try {
+        const _goneBalance = await moonBalanceF();
+        setMoonBalance(_goneBalance);
+      } catch (e) {
+        console.log("moon balance error");
+      }
+
+      try {
+        const _goneBalance = await jokerBalanceF();
+        setJokerBalance(_goneBalance);
+      } catch (e) {
+        console.log(e);
+      }
     };
     try {
       fetchData();
@@ -69,7 +102,9 @@ function Homepage() {
         return;
       }
       const countDownDate = new Date(
-        data ? data.endTime * 1000 : new Date().getTime()
+        data && data.startTime < new Date().getTime() / 1000
+          ? data.endTime * 1000
+          : new Date().getTime()
       );
       const now = new Date().getTime();
       const distance = countDownDate - now;
@@ -103,19 +138,35 @@ function Homepage() {
       </div>
 
       <div className="flex justify-center flex-col items-center mt-4 gap-4 text-center p-8">
-        <p className="text-xl">Total Pot</p>
-        <div className=" flex justify-between gap-20 md:gap-28">
-          <div>
-            <p>Matic</p>
-            <p>{Number(maticBalance).toFixed(2)}</p>
+        <p className="text-2xl">Total Pot</p>
+        <div className=" flex flex-col justify-center items-center  text-lg gap-5 md:gap-12 rounded-md border-4 p-5 md:w-[40%]">
+          <div className="flex gap-20 md:gap-28">
+            <div>
+              <p>Matic</p>
+              <p>{Number(maticBalance).toFixed(2)}</p>
+            </div>
+            <div>
+              <p>Woke</p>
+              <p>{Number(wokeBalance).toFixed(2)}</p>
+            </div>
+            <div>
+              <p>Gone</p>
+              <p>{Number(goneBalance).toFixed(2)}</p>
+            </div>
           </div>
-          <div>
-            <p>Woke</p>
-            <p>{Number(wokeBalance).toFixed(2)}</p>
-          </div>
-          <div>
-            <p>Gone</p>
-            <p>{Number(goneBalance).toFixed(2)}</p>
+          <div className="flex gap-20 md:gap-28">
+            <div>
+              <p>Lic</p>
+              <p>{Number(licBalance).toFixed(2)}</p>
+            </div>
+            <div>
+              <p>Moon</p>
+              <p>{Number(moonBalance).toFixed(2)}</p>
+            </div>
+            <div>
+              <p>Joker</p>
+              <p>{Number(jokerBalance).toFixed(2)}</p>
+            </div>
           </div>
         </div>
       </div>
