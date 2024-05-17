@@ -13,18 +13,19 @@ function SwapCard() {
   const [copied, setCopied] = useState(false);
   const [winner, setWinner] = useState([]);
   const [lottery, setLottery] = useState(null);
+  const [owners, setOwners] = useState(false);
 
   const { address, isConnected } = useAccount();
-  const { getWinners, getData } = useLottary();
+  const { getWinners, getData, owner } = useLottary();
 
   useEffect(() => {
     const _getWinners = async () => {
       const _winners = await getWinners();
-      console.log(_winners);
       setWinner(_winners);
       const _data = await getData();
-      console.log(_data);
       setLottery(_data);
+      const _owner = await owner();
+      setOwners(_owner);
     };
     if (isConnected) {
       _getWinners();
@@ -87,7 +88,9 @@ function SwapCard() {
         </div>
 
         {/* invite link of referral winner[0] !== "0x0000000000000000000000000000000000000000"*/}
-        {winner[0] !== "0x0000000000000000000000000000000000000000" ? (
+        {!owner &&
+        winner.length > 0 &&
+        winner[0] !== "0x0000000000000000000000000000000000000000" ? (
           <div className="flex justify-center flex-col items-center gap-8">
             <h1 className="text-2xl">Winners</h1>
             <div className="flex flex-col justify-center items-center gap-2 border-2 w-full p-2 shadow-sm">
